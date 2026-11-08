@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>*{box-sizing:border-box}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Ark of Osiris War Room</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: command-tablet — sticky tab bar, one working surface per tab; map gets a side inspector on wide screens */
+:root{
+  --bg:#0f1a2b; --panel:#16243a; --panel2:#1c2e49; --line:#2b4062; --fg:#e8e4d8; --mute:#93a0b6;
+  --gold:#d9a93f; --gold-ink:#1a1206; --sand:#c9b48a; --sand2:#b39d72; --enemy:#d4573e;
+  --tA:#3fb6a8; --tB:#d9a93f; --tC:#c96fb0;
+  --f-display:"Marcellus","Trajan Pro",Georgia,serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#eef0f4; --panel:#ffffff; --panel2:#f3f5f9; --line:#d3d9e3; --fg:#17233a; --mute:#5b6779;
+  --gold:#a8771a; --gold-ink:#fff8e8; --sand:#e2d2ac; --sand2:#cdb98c; --enemy:#b9402a;
+  --tA:#178a7d; --tB:#a8771a; --tC:#a2468b; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#eef0f4; --panel:#ffffff; --panel2:#f3f5f9; --line:#d3d9e3; --fg:#17233a; --mute:#5b6779;
+  --gold:#a8771a; --gold-ink:#fff8e8; --sand:#e2d2ac; --sand2:#cdb98c; --enemy:#b9402a;
+  --tA:#178a7d; --tB:#a8771a; --tC:#a2468b; color-scheme:light}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px;line-height:1.45}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--panel)}
+.wrap{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));max-width:1280px;margin:0 auto}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--panel);border-bottom:1px solid var(--line)}
+.hrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-block:10px}
+h1{font-family:var(--f-display);font-weight:400;font-size:22px;margin:0;letter-spacing:.02em;text-wrap:balance}
+h1 small{display:block;font-family:var(--f-body);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.tabs{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+.tab{background:none;border:1px solid transparent;color:var(--mute);padding:7px 12px;border-radius:6px;font:500 13px var(--f-body);cursor:pointer}
+.tab[aria-selected="true"]{color:var(--gold-ink);background:var(--gold)}
+.tab:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+main{padding-block:18px 60px}
+h2{font-family:var(--f-display);font-weight:400;font-size:20px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 14px;max-width:70ch}
+.btn{background:var(--panel2);color:var(--fg);border:1px solid var(--line);padding:7px 12px;border-radius:6px;font:500 13px var(--f-body);cursor:pointer;white-space:nowrap}
+.btn:hover{border-color:var(--gold)}
+.btn.primary{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.btn.sm{padding:4px 8px;font-size:12px}
+.btn.danger{color:var(--enemy)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.drop{border:1.5px dashed var(--line);border-radius:10px;padding:18px;display:grid;gap:10px;background:var(--panel)}
+.drop.over{border-color:var(--gold)}
+textarea,input[type=text],input[type=number],select{background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:13px var(--f-body);max-width:100%}
+textarea{width:100%;min-height:80px;font-family:var(--f-mono);font-size:12px}
+.note{font-size:12px;color:var(--mute)}
+.example{display:inline-block;font:500 10px var(--f-body);letter-spacing:.12em;text-transform:uppercase;color:var(--enemy);border:1px solid var(--enemy);border-radius:4px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font:600 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);cursor:pointer;user-select:none;background:var(--panel2)}
+td.num,th.num{text-align:right;font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+tr:last-child td{border-bottom:0}
+.tsel{display:inline-flex;gap:2px}
+.tsel button{width:26px;height:24px;border-radius:5px;border:1px solid var(--line);background:none;color:var(--mute);font:600 11px var(--f-mono);cursor:pointer}
+.tsel button.on{color:#fff;border-color:transparent}
+.tsel .A.on{background:var(--tA)} .tsel .B.on{background:var(--tB)} .tsel .C.on{background:var(--tC)}
+.tsel .X.on{background:var(--mute)}
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.team{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--tc);border-radius:10px;padding:12px;min-width:0}
+.team.drag{outline:2px dashed var(--tc)}
+.thead{display:flex;align-items:baseline;gap:8px;justify-content:space-between;margin-bottom:6px}
+.thead input{font:400 17px var(--f-display);background:none;border:0;border-bottom:1px dashed transparent;padding:2px 0;color:var(--fg);width:100%;min-width:0}
+.thead input:hover,.thead input:focus{border-bottom-color:var(--line)}
+.stats{display:flex;gap:14px;font:12px var(--f-mono);color:var(--mute);margin-bottom:8px;flex-wrap:wrap;font-variant-numeric:tabular-nums}
+.stats b{color:var(--fg);font-weight:500}
+.meter{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;margin-bottom:10px}
+.meter i{display:block;height:100%;background:var(--tc)}
+.plist{display:grid;gap:4px;min-height:40px}
+.pl{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:6px;background:var(--panel2);cursor:grab;font-size:13px}
+.pl .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pl .pw{font:12px var(--f-mono);color:var(--mute);font-variant-numeric:tabular-nums}
+.role{font:500 10px var(--f-body);letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:4px;border:1px solid var(--line);color:var(--mute);white-space:nowrap}
+.lock{background:none;border:0;cursor:pointer;color:var(--mute);font-size:12px;padding:0 2px}
+.lock.on{color:var(--gold)}
+.bench{margin-top:14px}
+.maplay{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:14px}
+@media (max-width:860px){.maplay{grid-template-columns:minmax(0,1fr)}}
+.mapbox{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;min-width:0}
+.mapbox svg{width:100%;height:auto;display:block;touch-action:manipulation;border-radius:6px;max-height:78vh}
+.mapbox svg.grab{touch-action:none}
+.tools{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+.tool{background:var(--panel2);border:1px solid var(--line);color:var(--fg);padding:6px 10px;border-radius:6px;font:500 12px var(--f-body);cursor:pointer}
+.tool.on{background:var(--fg);color:var(--bg)}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:20px;border:1.5px solid var(--tc);color:var(--fg);background:none;font:500 12px var(--f-body);cursor:pointer}
+.chip.on{background:var(--tc);color:#fff}
+.chip .dot{width:8px;height:8px;border-radius:50%;background:var(--tc)}
+.chip.on .dot{background:#fff}
+.phases{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.ph{background:none;border:1px solid var(--line);color:var(--mute);padding:5px 10px;border-radius:6px;font:500 12px var(--f-body);cursor:pointer}
+.ph.on{border-color:var(--gold);color:var(--gold)}
+.insp{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.insp h3{font:400 18px var(--f-display);margin:0}
+.insp label{font:600 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);display:grid;gap:4px}
+.insp input,.insp textarea,.insp select{width:100%}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:13px}
+.kv span:nth-child(odd){color:var(--mute)}
+.assigned{display:flex;gap:4px;flex-wrap:wrap}
+.pchip{display:inline-flex;gap:4px;align-items:center;padding:2px 4px 2px 8px;border-radius:12px;background:var(--panel2);border:1px solid var(--line);font-size:12px}
+.pchip button{background:none;border:0;color:var(--mute);cursor:pointer;font-size:13px;padding:0 4px}
+.hint{font-size:12px;color:var(--mute);margin:6px 0 0}
+.plan{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;white-space:pre-wrap;font:12.5px/1.55 var(--f-mono);overflow-x:auto;max-height:70vh;overflow-y:auto}
+.lib{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.libcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:6px;min-width:0}
+.libcard b{font:400 16px var(--f-display)}
+.libcard textarea{min-height:60px;font-family:var(--f-body);font-size:13px}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:8px 14px;border-radius:8px;font-weight:500;z-index:20}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.sect{margin-top:26px}
+@media (max-width:700px){
+  h1{font-size:19px} .tabs{margin-left:0;width:100%;overflow-x:auto;flex-wrap:nowrap;-webkit-overflow-scrolling:touch} .tab{flex:0 0 auto;padding:8px 11px}
+  #rtable,#rtable thead,#rtable tbody,#rtable tr,#rtable td{display:block;min-width:0;width:100%}
+  #rtable thead{display:none} #rtable{min-width:0}
+  #rtable tr{border-bottom:1px solid var(--line);padding:10px 12px;display:grid;grid-template-columns:1fr 1fr;gap:6px 10px}
+  #rtable td{border:0;padding:0;text-align:left}
+  #rtable td input,#rtable td select{width:100%!important;text-align:left!important}
+  #rtable td:nth-child(1),#rtable td:nth-child(5){grid-column:1/-1}
+  #rtable td:nth-child(3)::before{content:"Kill pts ";color:var(--mute);font-size:12px}
+  .tblwrap{border-radius:10px}
+  table.casts{min-width:0} table.casts thead{display:none} table.casts,table.casts tbody,table.casts tr,table.casts td{display:block}
+  table.casts tr{padding:8px 12px;border-bottom:1px solid var(--line)} table.casts td{border:0;padding:2px 0;text-align:left}
+  table.casts td[data-l]::before{content:attr(data-l) " · ";color:var(--mute);font-size:12px}
+  .pl{flex-wrap:wrap} .pl .nm{flex:1 1 40%} .tsel button{width:34px;height:30px}
+  .mapbox{padding:8px} .tool{padding:8px 10px}
+  input,select,textarea{font-size:16px!important}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.side{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.side button{background:none;border:0;padding:6px 10px;font:500 12px var(--f-body);color:var(--mute);cursor:pointer}
+.side button.on.iset{background:#2f6fd6;color:#fff}.side button.on.seth{background:#cf4b2a;color:#fff}
+.mapscroll{overflow:auto;border-radius:6px;-webkit-overflow-scrolling:touch}
+.mapscroll.zoom svg{width:190%;max-height:none}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.bcard{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;display:grid;gap:8px;min-width:0}
+.bcard h4{margin:0;font:400 17px var(--f-display);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.bcard .pts{font:12px var(--f-mono);color:var(--mute)}
+.slot{display:grid;grid-template-columns:92px 1fr;gap:4px 8px;font-size:13px;align-items:baseline}
+.slot dt{font:600 10.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.slot dd{margin:0;min-width:0}
+.lead{font-weight:600}
+.lead.none{font-weight:400;color:var(--mute)}
+.chipsm{display:inline-block;font:600 10px var(--f-mono);padding:1px 6px;border-radius:4px;color:#fff;background:var(--tc)}
+.free{font-size:13px;color:var(--mute)}
+.insp .grp{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
+.insp .grp h5{margin:0;font:600 11px var(--f-body);letter-spacing:.1em;text-transform:uppercase}
+.skc{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:start}
+.nrg{grid-row:span 3;width:38px;height:38px;border-radius:9px;display:grid;place-items:center;font:600 16px var(--f-mono);color:#fff;background:var(--cat)}
+.skc b{font:400 16px var(--f-display)}
+.skc .meta{font:12px var(--f-mono);color:var(--mute);display:flex;gap:10px;flex-wrap:wrap}
+.skc p{margin:0;font-size:13px;grid-column:2}
+.tag{font:600 10px var(--f-body);letter-spacing:.08em;text-transform:uppercase;padding:1px 6px;border-radius:4px;border:1px solid currentColor}
+.cats{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.libcard.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.warn{color:var(--enemy);font-size:12px}
+.facts{display:grid;gap:6px;font-size:13px;margin:0;padding-left:18px}
+</style>
+
+</head>
+<body>
+<header><div class="wrap hrow">
+  <h1><small>Rise of Kingdoms · AOO</small>Ark of Osiris War Room</h1>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-t="roster">Roster</button>
+    <button class="tab" role="tab" data-t="teams">Teams</button>
+    <button class="tab" role="tab" data-t="map">Battle map</button>
+    <button class="tab" role="tab" data-t="skills">AoO skills</button>
+    <button class="tab" role="tab" data-t="plan">Briefing</button>
+  </nav>
+</div></header>
+
+<main class="wrap">
+<noscript><div class="libcard" style="margin-top:8px"><b>Open this in a browser</b><span>This preview can't run the War Room. Open this file in Chrome or Safari instead of a file preview.</span></div></noscript>
+
+<section id="v-roster" hidden>
+  <h2>Roster import</h2>
+  <p class="sub">Drop your sign-up sheet (.xlsx, .xls, .csv) or paste rows copied from Google Sheets. Columns are detected by header: name, power, kill points, deaths, troop type, commanders, role, status.</p>
+  <div class="drop" id="drop">
+    <div class="bar" style="margin:0">
+      <label class="btn primary" for="file">Choose spreadsheet</label>
+      <input type="file" id="file" accept=".xlsx,.xls,.csv,.tsv,.txt" hidden>
+      <button class="btn" id="loadSample">Load example roster</button>
+      <button class="btn danger" id="clearRoster">Clear roster</button>
+      <span class="note" id="importMsg"></span>
+    </div>
+    <textarea id="paste" placeholder="…or paste here (first row = headers), e.g.&#10;Name	Power	Kill Points	Troop	Commanders	Role"></textarea>
+    <div><button class="btn" id="doPaste">Import pasted rows</button></div>
+  </div>
+  <div class="bar" style="margin-top:18px">
+    <input type="text" id="filter" placeholder="Search player…">
+    <span class="note" id="rosterCount"></span>
+    <button class="btn sm" id="addPlayer">+ Add player</button>
+  </div>
+  <div class="tblwrap"><table id="rtable"></table></div>
+</section>
+
+<section id="v-teams" hidden>
+  <h2>Three teams</h2>
+  <p class="sub">On a phone, use the A / B / C buttons on each player to move them. Auto-split balances total power and spreads roles (rally leads, garrisons, Ark carriers) across teams. Tap ○ to lock a player in place. On a computer you can also drag players between teams.</p>
+  <div class="bar">
+    <label class="note">Sizes
+      <input type="number" id="szA" min="0" max="30" style="width:56px"> /
+      <input type="number" id="szB" min="0" max="30" style="width:56px"> /
+      <input type="number" id="szC" min="0" max="30" style="width:56px">
+    </label>
+    <select id="balBy"><option value="power">Balance by power</option><option value="kp">Balance by kill points</option><option value="score">Balance by power + KP</option></select>
+    <button class="btn primary" id="autoSplit">Auto-split</button>
+    <button class="btn" id="resetTeams">Unassign unlocked</button>
+  </div>
+  <div class="teams" id="teamsGrid"></div>
+  <div class="bench team" id="benchBox" style="--tc:var(--mute)"></div>
+</section>
+
+<section id="v-map" hidden>
+  <div class="bar" style="justify-content:space-between;align-items:flex-end">
+    <div><h2>Battle map · Golden</h2><p class="sub" style="margin:0">Pick a phase and a tool, then tap the map. Tap a structure to set its main rally, main garrison and fillers.</p></div>
+    <div class="bar" style="margin:0"><span class="note">We are</span><div class="side" id="sidePick"><button class="iset" data-side="iset">Iset · blue</button><button class="seth" data-side="seth">Seth · red</button></div></div>
+  </div>
+  <div class="phases" id="phases"></div>
+  <div class="maplay">
+    <div class="mapbox">
+      <div class="tools" id="tools"></div>
+      <div class="tools" id="teamChips"></div>
+      <div class="mapscroll" id="mapscroll"><svg id="map" viewBox="0 0 1000 680" role="img" aria-label="Ark of Osiris Golden battlefield"></svg></div>
+      <p class="hint" id="toolHint"></p>
+    </div>
+    <aside class="insp" id="insp"></aside>
+  </div>
+  <div class="sect">
+    <h2>Structure orders</h2>
+    <p class="sub" id="boardSub">Main rally, main garrison and fillers for every structure in this phase.</p>
+    <div class="board" id="board"></div>
+    <div class="libcard" style="margin-top:12px"><b>Not on a structure this phase</b><div id="freeList"></div></div>
+  </div>
+</section>
+
+<section id="v-skills" hidden>
+  <h2>Battlefield skills</h2>
+  <p class="sub">Only coordinators can cast skills. Besides the default skills, each team equips up to 6. Casting spends Energy Bars; the number on each skill is its Energy Bar cost.</p>
+  <div class="grid2">
+    <div class="libcard">
+      <b>Coordinators</b>
+      <span class="note">Who holds the coordinator slots (up to 5).</span>
+      <div id="coordList" class="assigned"></div>
+      <select id="addCoord"></select>
+    </div>
+    <div class="libcard">
+      <b>Loadout <span class="note" id="loadCount"></span></b>
+      <span class="note">Tap “Equip” on a skill below. Mark the ones your game gives by default so they don't count toward the 6.</span>
+      <div id="loadList" class="assigned"></div>
+    </div>
+  </div>
+  <div class="libcard" style="margin-top:14px">
+    <b>Energy & cooldown rules</b>
+    <ul class="facts">
+      <li>Energy Points build up on their own; enough of them makes one Energy Bar.</li>
+      <li>The team that is behind on score gains energy faster, depending on the gap.</li>
+      <li>Some skills also generate energy (Stocking Up, Energetic).</li>
+      <li>Each skill has its own cooldown. Skills with a 3,600 s cooldown are effectively once per match.</li>
+      <li>Running Charge, War Drums and Mystical Formation end as soon as an affected troop enters a building. Cast them in the open field.</li>
+    </ul>
+  </div>
+  <div class="sect">
+    <h2>Skill plan</h2>
+    <p class="sub">Who casts what, where, and at what match time. Cooldown clashes and the Energy Bars needed show up automatically.</p>
+    <div class="phases" id="skPhases"></div>
+    <div class="libcard" style="margin-bottom:12px">
+      <div class="bar" style="margin:0">
+        <select id="cSkill"></select><select id="cBy"></select><select id="cTarget"></select>
+        <input type="text" id="cTime" placeholder="Time 05:00" style="width:130px">
+        <input type="text" id="cNote" placeholder="Call-out (optional)" style="flex:1;min-width:140px">
+        <button class="btn primary" id="addCast">Add to plan</button>
+      </div>
+    </div>
+    <div id="castList"></div>
+  </div>
+  <div class="sect">
+    <h2>All skills</h2>
+    <div class="cats" id="cats"></div>
+    <div class="lib" id="skillLib"></div>
+  </div>
+  <div class="sect">
+    <h2>Roles</h2>
+    <p class="sub">What each role means on the battlefield. Edit to match how your alliance plays.</p>
+    <div class="lib" id="roleLib"></div>
+  </div>
+</section>
+
+<section id="v-plan" hidden>
+  <div class="bar" style="justify-content:space-between">
+    <div><h2>Briefing</h2><p class="sub" style="margin:0">Ready to paste into Discord or alliance chat.</p></div>
+    <div class="bar" style="margin:0">
+      <select id="planScope"><option value="all">Full plan</option><option value="A">Team A only</option><option value="B">Team B only</option><option value="C">Team C only</option></select>
+      <button class="btn primary" id="copyPlan">Copy briefing</button>
+    </div>
+  </div>
+  <pre class="plan" id="planOut"></pre>
+  <div class="sect bar">
+    <button class="btn" id="copyJson">Copy backup code</button>
+    <button class="btn" id="showRestore">Restore from backup</button>
+    <button class="btn danger" id="resetAll">Reset everything</button>
+  </div>
+  <div id="restoreBox" hidden><textarea id="restoreTxt" placeholder="Paste backup code"></textarea><button class="btn" id="doRestore">Restore</button></div>
+</section>
+
+</main>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+(function(){
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const TK=['A','B','C'];
+const uid=()=>Math.random().toString(36).slice(2,9);
+const fmt=n=>{n=+n||0;if(n>=1e9)return(n/1e9).toFixed(2)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(0)+'K';return String(n)};
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(t._t);t._t=setTimeout(()=>t.hidden=true,1800)}
+const VERSION=4;
+
+const ROLES=['Rally lead','Garrison','Open field','Ark carrier','Teleport rush','Support','Gatherer','Backup'];
+const ROLE_DEF={
+ 'Rally lead':'Opens rallies on enemy-held structures. Needs strong rally pairs; stays near the team captain.',
+ 'Garrison':'Garrison leader in our structures. Defensive pairs, healing and troop capacity matter most.',
+ 'Open field':'Fights in the lanes around objectives. Hits rallies forming on our structures and escorts the Ark.',
+ 'Ark carrier':'Picks up the Ark and walks it to a structure the enemy does not hold. Always name a backup carrier.',
+ 'Teleport rush':'Uses the 8 teleports from our first Obelisk capture. Spot reserved before the match.',
+ 'Support':'Fills rallies and garrisons and chases enemy carriers.',
+ 'Gatherer':'Collects provisions from Caravans (they spawn 3 times per match).',
+ 'Backup':'Covers no-shows and disconnects. Knows every team\'s plan.'};
+
+/* ---------- structures (Golden battlefield) ---------- */
+const TYPES={
+ base:{label:'Base'},
+ ark:{label:'Ark of Osiris',pts:'Escort: 3,000 team · 300 individual',eff:'Appears at the Temple of Osiris in the center. Escort it to any structure the enemy does not occupy for a huge score. It respawns after a while and each escort is worth more.'},
+ obelisk:{label:'Obelisk',pts:'First 100 · then 20/min',eff:'Most important early. Holding it lets your team teleport War Camps around it: 8 teleports on the first capture, 2 for recapturing one held before.'},
+ outpost:{label:'Outpost',pts:'First 80 · then 30/min',eff:'Small points. Hold all 3 Outposts near your safe area to see the Ark at all times and gain visual range.'},
+ war:{label:'Shrine of War',pts:'First 400 · then 80/min',eff:'Increases Attack and Defense of all your team\'s troops.'},
+ life:{label:'Shrine of Life',pts:'First 400 · then 80/min',eff:'Increases Health and March Speed of all your team\'s troops.'},
+ altar:{label:'Altar (Desert / Sky)',pts:'First 750 · then 150/min',eff:'Strong defensive position. Big points while held.'},
+ anubis:{label:'Altar of Anubis',pts:'Warden win: 0 points, buffs + skill rewards',eff:'Herald, Warden and Arbiter of Anubis appear here in turn. The team that defeats them earns buffs, points and battlefield-skill rewards.'},
+ caravan:{label:'Caravan',pts:'L1 33 · L2 49 · L3 66 team per provisions',eff:'Gather provisions and bring them to your War Camp. New Caravans spawn three times per match.'},
+ other:{label:'Other',pts:'',eff:''}};
+const MAPH=766;
+const DEF_BUILD=()=>[
+ {id:'bI',name:'Iset base',short:'Iset base',type:'base',x:132,y:85,side:'iset'},
+ {id:'bS',name:'Seth base',short:'Seth base',type:'base',x:857,y:632,side:'seth'},
+ {id:'ark',name:'Ark of Osiris (Temple)',short:'Ark',type:'ark',x:472,y:350},
+ {id:'obN',name:'Obelisk North',short:'Obelisk N',type:'obelisk',x:530,y:102},
+ {id:'obW',name:'Obelisk West',short:'Obelisk W',type:'obelisk',x:110,y:315},
+ {id:'obE',name:'Obelisk East',short:'Obelisk E',type:'obelisk',x:853,y:340},
+ {id:'obS',name:'Obelisk South',short:'Obelisk S',type:'obelisk',x:413,y:597},
+ {id:'oI1',name:'Outpost of Iset (top)',short:'Iset Out 1',type:'outpost',x:344,y:127,side:'iset'},
+ {id:'oI2',name:'Outpost of Iset (west)',short:'Iset Out 2',type:'outpost',x:178,y:215,side:'iset'},
+ {id:'oI3',name:'Outpost of Iset (center)',short:'Iset Out 3',type:'outpost',x:334,y:235,side:'iset'},
+ {id:'oS1',name:'Outpost of Seth (center)',short:'Seth Out 1',type:'outpost',x:618,y:447,side:'seth'},
+ {id:'oS2',name:'Outpost of Seth (east)',short:'Seth Out 2',type:'outpost',x:786,y:447,side:'seth'},
+ {id:'oS3',name:'Outpost of Seth (bottom)',short:'Seth Out 3',type:'outpost',x:621,y:562,side:'seth'},
+ {id:'wW',name:'Shrine of War West',short:'War W',type:'war',x:274,y:365},
+ {id:'wE',name:'Shrine of War East',short:'War E',type:'war',x:678,y:315},
+ {id:'lN',name:'Shrine of Life North',short:'Life N',type:'life',x:677,y:122},
+ {id:'lS',name:'Shrine of Life South',short:'Life S',type:'life',x:244,y:575},
+ {id:'aN',name:'Desert Altar North',short:'Desert Altar N',type:'altar',x:540,y:230},
+ {id:'aS',name:'Desert Altar South',short:'Desert Altar S',type:'altar',x:411,y:462},
+ {id:'aNE',name:'Sky Altar East',short:'Sky Altar E',type:'altar',x:815,y:212},
+ {id:'aW',name:'Sky Altar West',short:'Sky Altar W',type:'altar',x:123,y:457},
+ {id:'anN',name:'Altar of Anubis North',short:'Anubis N',type:'anubis',x:785,y:80},
+ {id:'anS',name:'Altar of Anubis South',short:'Anubis S',type:'anubis',x:205,y:690},
+];
+const RIDGES=[[[475,290],[520,295],[560,315],[600,340],[617,368]],[[340,342],[380,360],[415,385],[450,410],[487,438]]];
+const newPhase=(name,notes='')=>({id:uid(),name,assign:{},slots:{},arrows:[],pins:[],casts:[],notes});
+const DEF_PHASES=()=>[newPhase('Opening','Rush the nearest Obelisk: 8 teleports on first capture. Mark teleport spots before the gates open.'),newPhase('Mid game'),newPhase('Ark phase','Main carrier + backup named. Deliver to any structure the enemy does not hold.'),newPhase('Hold & close')];
+
+/* ---------- battlefield skills (from the in-game Skills System) ---------- */
+const CAT={move:['Movement','#2f7fd6'],atk:['Attack','#d0552e'],def:['Defense','#1f9aa8'],heal:['Healing','#3a9c4a'],ctrl:['Enemy debuff','#8a4fc2'],eco:['Economy & energy','#b88a12'],util:['Utility','#6b6f7a']};
+const SKILLS=[
+ ['running','Running Charge',2,600,'move','Up to 30 allied troops in an area get +100% March Speed for 60 s.','area'],
+ ['swift','Swift Stride',3,720,'move','All allied troops get +50% March Speed for 60 s.','all'],
+ ['hardpush','Hard Push',2,480,'atk','For 480 s, allied rallied armies get +50% March Speed and deal +30% damage.','all'],
+ ['drums','War Drums',3,480,'atk','Up to 30 allied troops in an area get +80% Attack for 180 s.','area'],
+ ['teardown','Tear Down',1,360,'atk','Allied troops attacking the chosen structure get +40% Attack for 180 s.','building'],
+ ['mystic','Mystical Formation',3,480,'def','Up to 30 allied troops in an area get +50% Defense for 180 s.','area'],
+ ['valiant','Valiant Stand',1,360,'def','Allied troops garrisoning the chosen structure get +25% Defense for 180 s.','building'],
+ ['timely','Timely Support',3,720,'heal','For 180 s, your team heals severely wounded units in War Camps at 300% of current speed.','all'],
+ ['insatiable','Insatiable Desire',2,600,'eco','All allied troops gather 50% faster at Caravans for 300 s.','all'],
+ ['bog','Bog Down',4,720,'ctrl','Enemy troops in the area: −50% March Speed, −30% Defense, −50% healing received for 60 s.','area'],
+ ['storm','Desert Storm',3,600,'ctrl','Skill damage (factor 500) to up to 30 enemy troops in the area. They lose 2% of max units and lose Hidden for 10 s. No effect on structures.','area'],
+ ['sneaky','Sneaky Tactics',3,900,'move','For 120 s, up to 30 allied troops in the area (not the Ark carrier) get +50% March Speed and Hidden. Attacking breaks Hidden but gives +30% damage for 60 s.','area'],
+ ['grace','Heaven\'s Grace',4,1200,'heal','Heals part of all allied troops\' slightly wounded units (factor 1000) every second for 20 s.','all'],
+ ['death','To The Death!',6,3600,'atk','Up to 30 allied troops in an area deal +100% damage and take −30% damage for 60 s. They can\'t be healed until it ends.','area'],
+ ['master','Master Strategy',6,3600,'move','20 s after casting, teleports up to 30 allied troops in the selected area to a target spot. They get +50% Attack for 180 s.','area'],
+ ['dust','Dust Up',2,600,'ctrl','All enemy troops and enemy-held structures: −50% visual range and −10% damage for 180 s.','all'],
+ ['vision','Total Vision',4,720,'util','+15 visual range on enemy troops and enemy-held structures for 60 s, and +10% damage for all allied troops for 180 s.','all'],
+ ['arrows','Fire Arrows',2,600,'atk','Up to 30 allied troops in an area get +40% ranged damage and +20% ranged attack range for 180 s.','area'],
+ ['stocking','Stocking Up',2,900,'eco','For 600 s, every 3 provisions your team delivers from Caravans (up to 1,500) gives 0.15% of an Energy Bar.','all'],
+ ['energetic','Energetic',2,1200,'eco','For 300 s, your team gets +150% Energy Points (+50% when the energy comes from another skill).','all'],
+ ['inferno','Inferno',6,1800,'ctrl','Pick an allied troop. After 30 s the area around it burns for 18 s. Every 3 s, half the troops in the flames (either team) lose 20% of max units and Hidden.','area'],
+ ['timewarp','Time Warp',6,3600,'util','Resets all your team\'s skill cooldowns. Your next skill costs no Energy Bars.','all'],
+ ['nomarch','Nomarch',6,3600,'util','For 300 s: capture structures 60 s faster, +30% occupation points, +20% damage attacking structures, −20% damage taken while garrisoning.','all'],
+ ['sunsailer','Sunsailer',5,1800,'move','Place two solar barques. After 60 s, any troop (either team) near one teleports to the other with +50% March Speed for 10 s. Lasts 600 s or 50 troops. No rallies or Ark carriers.','area'],
+].map(([id,name,energy,cd,cat,eff,target])=>({id,name,energy,cd,cat,eff,target}));
+const SK=Object.fromEntries(SKILLS.map(s=>[s.id,s]));
+const cdTxt=s=>s>=3600?'60 min (once per match)':s%60===0?(s/60)+' min':s+' s';
+
+const DEF=()=>({v:VERSION,players:[],teams:{A:{name:'North'},B:{name:'Center · Ark'},C:{name:'South'}},sizes:[null,null,null],side:'iset',buildings:DEF_BUILD(),phases:DEF_PHASES(),cur:0,coords:[],loadout:[],defaults:[],roleNotes:{...ROLE_DEF},sample:false,tab:'roster'});
+let S=DEF();
+function save(){try{localStorage.setItem('aoo-war-room',JSON.stringify(S))}catch(e){}}
+
+/* ---------- parsing ---------- */
+function num(v){if(v==null||v==='')return 0;if(typeof v==='number')return v;let s=String(v).trim().toUpperCase().replace(/\s/g,'');let m=1;
+ if(/B$/.test(s)){m=1e9;s=s.slice(0,-1)}else if(/M$/.test(s)){m=1e6;s=s.slice(0,-1)}else if(/K$/.test(s)){m=1e3;s=s.slice(0,-1)}
+ if(m>1)s=s.replace(',','.');else s=s.replace(/[.,](?=\d{3}(\D|$))/g,'').replace(',','.');
+ const n=parseFloat(s);return isNaN(n)?0:n*m}
+const COLS={name:/^(name|player|governor|nick|ign|jogador|nome)/i,power:/power|poder/i,kp:/kill|kp|abates/i,dead:/dead|death|mort/i,troop:/troop|type|tropa|unit/i,cmd:/command|comandante|pair|lead/i,role:/role|fun[cç]|position|job/i,id:/^(id|gov.?id)$/i,status:/status|confirm|rsvp|avail/i};
+function rowsToPlayers(rows){
+ rows=rows.filter(r=>r&&r.length);if(!rows.length)return{players:[],map:{}};
+ let hi=rows.findIndex(r=>r.some(c=>COLS.name.test(String(c))));if(hi<0)hi=0;
+ const head=rows[hi].map(h=>String(h||'').trim());const map={};
+ head.forEach((h,i)=>{for(const k in COLS){if(map[k]==null&&COLS[k].test(h)){if(k==='name'&&COLS.id.test(h))continue;map[k]=i;break}}});
+ if(map.name==null)map.name=0;
+ const out=[];
+ for(const r of rows.slice(hi+1)){const name=String(r[map.name]??'').trim();if(!name)continue;
+  out.push({id:uid(),name,power:num(r[map.power]),kp:num(r[map.kp]),dead:num(r[map.dead]),troop:String(r[map.troop]??'').trim(),cmd:String(r[map.cmd]??'').trim(),role:normRole(map.role!=null?r[map.role]:''),status:String(r[map.status]??'').trim(),team:null,lock:false})}
+ return {players:out,map};
+}
+function normRole(v){v=String(v||'').toLowerCase();if(!v)return'';
+ if(/rally|rali/.test(v))return'Rally lead';if(/garr|guarn/.test(v))return'Garrison';if(/ark|carr/.test(v))return'Ark carrier';
+ if(/tele|tp/.test(v))return'Teleport rush';if(/field|campo|open/.test(v))return'Open field';if(/gath|colet/.test(v))return'Gatherer';
+ if(/back|sub|reserv/.test(v))return'Backup';if(/supp|fill/.test(v))return'Support';return v.charAt(0).toUpperCase()+v.slice(1)}
+function importRows(rows,src){
+ const r=rowsToPlayers(rows);
+ if(!r.players.length){$('#importMsg').textContent='No players found. Check that one column is called Name or Player.';return}
+ if(S.sample){S.players=[];S.sample=false;S.coords=[];S.phases.forEach(P=>{P.slots={};P.casts.forEach(c=>c.by='')})}
+ let add=0,upd=0;
+ r.players.forEach(p=>{const ex=S.players.find(q=>q.name.toLowerCase()===p.name.toLowerCase());
+  if(ex){Object.assign(ex,{power:p.power||ex.power,kp:p.kp||ex.kp,dead:p.dead||ex.dead,troop:p.troop||ex.troop,cmd:p.cmd||ex.cmd,role:p.role||ex.role,status:p.status||ex.status});upd++}
+  else{S.players.push(p);add++}});
+ const found=Object.keys(r.map).filter(k=>k!=='id').map(k=>k==='kp'?'kill points':k==='cmd'?'commanders':k).join(', ');
+ $('#importMsg').textContent=`${src}: ${add} added, ${upd} updated. Columns found: ${found}.`;
+ save();renderAll();
+}
+function splitCSV(l,d){if(d==='\t')return l.split('\t');const out=[];let cur='',q=false;for(const ch of l){if(ch==='"'){q=!q}else if(ch===d&&!q){out.push(cur);cur=''}else cur+=ch}out.push(cur);return out}
+function textRows(t){const d=t.includes('\t')?'\t':(t.split('\n')[0].includes(';')?';':',');return t.split(/\r?\n/).map(l=>splitCSV(l,d))}
+function needXLSX(){return new Promise((ok,no)=>{if(window.XLSX)return ok();const sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';sc.onload=ok;sc.onerror=no;document.head.appendChild(sc)})}
+async function readFile(f){
+ $('#importMsg').textContent='Reading '+f.name+'…';
+ if(/\.(csv|tsv|txt)$/i.test(f.name)){importRows(textRows(await f.text()),f.name);return}
+ try{await needXLSX()}catch(e){$('#importMsg').textContent='Could not load the Excel reader. Export the sheet as CSV, or copy the cells and paste them below.';return}
+ try{const wb=XLSX.read(new Uint8Array(await f.arrayBuffer()),{type:'array'});const ws=wb.Sheets[wb.SheetNames[0]];importRows(XLSX.utils.sheet_to_json(ws,{header:1,raw:true,defval:''}),f.name)}
+ catch(err){$('#importMsg').textContent='Could not read that file: '+err.message}}
+$('#file').addEventListener('change',e=>{const f=e.target.files[0];if(f)readFile(f);e.target.value=''});
+const drop=$('#drop');
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{if(e.dataTransfer.types.includes('Files')){e.preventDefault();drop.classList.add('over')}}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,()=>drop.classList.remove('over')));
+drop.addEventListener('drop',e=>{const f=e.dataTransfer.files[0];if(f){e.preventDefault();readFile(f)}});
+$('#doPaste').onclick=()=>{const t=$('#paste').value.trim();if(!t)return;importRows(textRows(t),'Pasted');$('#paste').value=''};
+$('#loadSample').onclick=()=>{loadSample();save();renderAll();toast('Example roster loaded')};
+$('#clearRoster').onclick=function(){if(this.dataset.c){S.players=[];S.sample=false;S.coords=[];S.phases.forEach(P=>P.slots={});save();renderAll();this.textContent='Clear roster';delete this.dataset.c;toast('Roster cleared')}else{this.dataset.c=1;this.textContent='Tap again to clear';setTimeout(()=>{this.textContent='Clear roster';delete this.dataset.c},2500)}};
+$('#addPlayer').onclick=()=>{if(S.sample){S.players=[];S.sample=false}S.players.unshift({id:uid(),name:'New player',power:0,kp:0,dead:0,troop:'',cmd:'',role:'',status:'',team:null,lock:false});save();renderRoster();renderTeams()};
+
+function loadSample(){
+ const names=['Nefer','Ramses II','Khafre','Sobek','Anubite','Hatsu','Thutmose','Merit','Akhen','Bastet','Imhotep','Seti','Menes','Djoser','Tiye','Ahmose','Kawab','Narmer','Senna','Userkaf','Horemheb','Amun','Isis Fan','Ptahotep','Khnum','Meret','Sneferu','Nebet','Wadjet','Heka'];
+ const troops=['Infantry','Cavalry','Archer','Mixed'];
+ const cmds=['Guan Yu / Harald','Alexander / Charles Martel','Saladin / Joan of Arc','Richard I / Charles Martel','Ramesses II / Yi Seong-Gye','Zenobia / Joan of Arc','Mehmed II / Sun Tzu','Attila / Takeda','Cao Cao / Minamoto','El Cid / Mulan'];
+ const roles=['Rally lead','Rally lead','Rally lead','Garrison','Garrison','Garrison','Ark carrier','Ark carrier','Teleport rush','Teleport rush','Teleport rush','Teleport rush','Open field','Open field','Open field','Open field','Open field','Open field','Support','Support','Support','Support','Support','Support','Gatherer','Gatherer','Backup','Backup','Open field','Support'];
+ let seed=7;const rnd=()=>(seed=(seed*9301+49297)%233280)/233280;
+ S.players=names.map((n,i)=>{const pw=Math.round((95-i*2.3+rnd()*6)*1e6);return{id:uid(),name:n,power:pw,kp:Math.round(pw*(4+rnd()*14)),dead:Math.round(pw*rnd()*0.02),troop:troops[Math.floor(rnd()*4)],cmd:cmds[i%cmds.length],role:roles[i],status:'Confirmed',team:null,lock:false}});
+ S.sample=true;autoSplit();
+ // example orders so the map and board open in a working state
+ const by=r=>S.players.filter(p=>p.role===r);const P=S.phases[0];
+ P.assign={obN:['A'],obW:['A'],obS:['C'],ark:['B']};
+ const t=k=>S.players.filter(p=>p.team===k);
+ const lead=(k,r)=>(t(k).find(p=>p.role===r)||t(k)[0]||{}).id||'';
+ P.slots={obN:{rally:lead('A','Rally lead'),garr:lead('A','Garrison'),rf:t('A').filter(p=>p.role==='Support').slice(0,3).map(p=>p.id),gf:t('A').filter(p=>p.role==='Open field').slice(0,2).map(p=>p.id)},
+          obS:{rally:lead('C','Rally lead'),garr:lead('C','Garrison'),rf:t('C').filter(p=>p.role==='Support').slice(0,3).map(p=>p.id),gf:[]}};
+ S.coords=[lead('A','Rally lead'),lead('B','Rally lead'),lead('C','Rally lead')].filter(Boolean);
+ S.loadout=['running','drums','mystic','valiant','teardown','master'];
+ P.casts=[{id:uid(),skill:'running',by:S.coords[0]||'',target:'obN',time:'00:30',note:'Rush to Obelisk N'}];
+}
+
+/* ---------- roster table ---------- */
+let sortK='power',sortD=-1;
+function renderRoster(){
+ const q=$('#filter').value.trim().toLowerCase();
+ let ps=S.players.filter(p=>!q||p.name.toLowerCase().includes(q)||p.cmd.toLowerCase().includes(q));
+ ps.sort((a,b)=>{const x=a[sortK],y=b[sortK];return(typeof x==='number'?x-y:String(x).localeCompare(String(y)))*sortD});
+ const tot=S.players.reduce((s,p)=>s+p.power,0);
+ $('#rosterCount').innerHTML=`${S.players.length} players · ${fmt(tot)} power`+(S.sample?'<span class="example">Example data</span>':'');
+ const th=(k,l,c='')=>`<th class="${c}" data-k="${k}">${l}${sortK===k?(sortD<0?' ↓':' ↑'):''}</th>`;
+ $('#rtable').innerHTML=`<thead><tr>${th('name','Player')}${th('power','Power','num')}${th('kp','Kill pts','num')}${th('troop','Troop')}${th('cmd','Commanders')}${th('role','Role')}<th>Team</th><th></th></tr></thead><tbody>${
+ ps.map(p=>`<tr data-id="${p.id}"><td><input type="text" id="n-${p.id}" data-f="name" value="${esc(p.name)}" style="width:130px"></td>
+ <td class="num"><input type="text" id="p-${p.id}" data-f="power" value="${fmt(p.power)}" style="width:72px;text-align:right"></td>
+ <td class="num">${fmt(p.kp)}</td>
+ <td><input type="text" id="t-${p.id}" data-f="troop" value="${esc(p.troop)}" style="width:86px"></td>
+ <td><input type="text" id="c-${p.id}" data-f="cmd" value="${esc(p.cmd)}" style="width:170px"></td>
+ <td><select id="r-${p.id}" data-f="role"><option value="">—</option>${[...new Set([...ROLES,p.role].filter(Boolean))].map(r=>`<option ${r===p.role?'selected':''}>${esc(r)}</option>`).join('')}</select></td>
+ <td>${teamSel(p)}</td><td><button class="btn sm danger" data-del="${p.id}" aria-label="Remove ${esc(p.name)}">✕</button></td></tr>`).join('')}</tbody>`;
+}
+function teamSel(p){return`<span class="tsel">${TK.map(k=>`<button class="${k} ${p.team===k?'on':''}" data-pid="${p.id}" data-team="${k}" title="${esc(S.teams[k].name)}">${k}</button>`).join('')}<button class="X ${!p.team?'on':''}" data-pid="${p.id}" data-team="" title="Bench">–</button></span>`}
+$('#rtable').addEventListener('click',e=>{const h=e.target.closest('th[data-k]');if(h){const k=h.dataset.k;if(sortK===k)sortD*=-1;else{sortK=k;sortD=typeof S.players[0]?.[k]==='number'?-1:1}renderRoster();return}
+ const d=e.target.closest('[data-del]');if(d){removePlayer(d.dataset.del);save();renderRoster();renderTeams()}});
+function removePlayer(id){S.players=S.players.filter(p=>p.id!==id);S.coords=S.coords.filter(x=>x!==id);S.phases.forEach(P=>{Object.values(P.slots).forEach(s=>{if(s.rally===id)s.rally='';if(s.garr===id)s.garr='';s.rf=s.rf.filter(x=>x!==id);s.gf=s.gf.filter(x=>x!==id)});P.casts.forEach(c=>{if(c.by===id)c.by=''})})}
+$('#rtable').addEventListener('change',e=>{const f=e.target.dataset.f;if(!f)return;const p=S.players.find(x=>x.id===e.target.closest('tr').dataset.id);
+ p[f]=f==='power'?num(e.target.value):e.target.value;save();if(f==='power')renderRoster()});
+$('#filter').addEventListener('input',renderRoster);
+document.addEventListener('click',e=>{const b=e.target.closest('.tsel button');if(!b)return;const p=S.players.find(x=>x.id===b.dataset.pid);p.team=b.dataset.team||null;save();renderRoster();renderTeams();if(S.tab==='map')renderMapAll()});
+
+/* ---------- teams ---------- */
+const score=(p,by)=>by==='kp'?p.kp:by==='score'?p.power+p.kp/10:p.power;
+function sizes(){const n=S.players.length;const base=Math.floor(n/3),rem=n%3;const auto=[base+(rem>1?1:0),base+(rem>0?1:0),base];
+ return S.sizes.map((s,i)=>s==null||s===''?auto[i]:+s)}
+function autoSplit(){
+ const by=$('#balBy').value||'power';const cap=sizes();
+ const T={A:{pw:0,n:0,roles:{}},B:{pw:0,n:0,roles:{}},C:{pw:0,n:0,roles:{}}};
+ S.players.forEach(p=>{if(p.lock&&p.team){const t=T[p.team];t.pw+=score(p,by);t.n++;t.roles[p.role]=(t.roles[p.role]||0)+1}else p.team=null});
+ const free=S.players.filter(p=>!p.team).sort((a,b)=>score(b,by)-score(a,by));
+ for(const p of free){let best=null,bv=Infinity;
+  TK.forEach((k,i)=>{const t=T[k];if(t.n>=cap[i])return;const v=t.pw+(t.roles[p.role]||0)*score(p,by)*0.6+t.n;if(v<bv){bv=v;best=k}});
+  if(!best)continue;p.team=best;T[best].pw+=score(p,by);T[best].n++;T[best].roles[p.role]=(T[best].roles[p.role]||0)+1}
+}
+$('#autoSplit').onclick=()=>{autoSplit();save();renderTeams();renderRoster();toast('Teams balanced')};
+$('#resetTeams').onclick=()=>{S.players.forEach(p=>{if(!p.lock)p.team=null});save();renderTeams();renderRoster()};
+['szA','szB','szC'].forEach((id,i)=>$('#'+id).addEventListener('change',e=>{S.sizes[i]=e.target.value===''?null:+e.target.value;save()}));
+function pl(p){return`<div class="pl" draggable="true" data-pid="${p.id}"><button class="lock ${p.lock?'on':''}" data-lock="${p.id}" aria-label="${p.lock?'Unlock':'Lock'} ${esc(p.name)}" title="${p.lock?'Locked':'Lock in this team'}">${p.lock?'●':'○'}</button><span class="nm">${esc(p.name)}</span>${p.role?`<span class="role">${esc(p.role)}</span>`:''}<span class="pw">${fmt(p.power)}</span>${teamSel(p)}</div>`}
+function renderTeams(){
+ const sz=sizes();['szA','szB','szC'].forEach((id,i)=>{const el=$('#'+id);el.placeholder=sz[i];el.value=S.sizes[i]??''});
+ const tot=S.players.filter(p=>p.team).reduce((s,p)=>s+p.power,0)||1;
+ $('#teamsGrid').innerHTML=TK.map(k=>{const ps=S.players.filter(p=>p.team===k).sort((a,b)=>b.power-a.power);const pw=ps.reduce((s,p)=>s+p.power,0),kp=ps.reduce((s,p)=>s+p.kp,0);
+  const rc={};ps.forEach(p=>{if(p.role)rc[p.role]=(rc[p.role]||0)+1});
+  return`<div class="team" data-drop="${k}" style="--tc:var(--t${k})"><div class="thead"><input type="text" id="tn-${k}" data-tname="${k}" value="${esc(S.teams[k].name)}" aria-label="Team ${k} name"><span class="role" style="border-color:var(--t${k});color:var(--t${k})">Team ${k}</span></div>
+  <div class="stats"><span><b>${ps.length}</b> players</span><span><b>${fmt(pw)}</b> power</span><span><b>${fmt(kp)}</b> KP</span></div>
+  <div class="meter"><i style="width:${(pw/tot*100).toFixed(1)}%"></i></div>
+  <div class="stats" style="font-family:var(--f-body)">${Object.entries(rc).map(([r,n])=>`<span>${esc(r)} <b>${n}</b></span>`).join('')||'<span>No roles set</span>'}</div>
+  <div class="plist">${ps.map(pl).join('')||'<span class="note">Use the A/B/C buttons to add players</span>'}</div></div>`}).join('');
+ const bench=S.players.filter(p=>!p.team).sort((a,b)=>b.power-a.power);
+ $('#benchBox').innerHTML=`<div class="thead"><h3 style="font:400 17px var(--f-display);margin:0">Bench & subs</h3><span class="note">${bench.length} players</span></div><div class="plist" data-drop="">${bench.map(pl).join('')||'<span class="note">Everyone is on a team.</span>'}</div>`;
+ $('#benchBox').dataset.drop='';
+}
+document.addEventListener('change',e=>{const k=e.target.dataset.tname;if(k){S.teams[k].name=e.target.value;save();renderChips()}});
+document.addEventListener('click',e=>{const l=e.target.closest('[data-lock]');if(!l)return;const p=S.players.find(x=>x.id===l.dataset.lock);p.lock=!p.lock;save();renderTeams()});
+let dragId=null;
+document.addEventListener('dragstart',e=>{const p=e.target.closest&&e.target.closest('.pl');if(p){dragId=p.dataset.pid;e.dataTransfer.setData('text/plain',dragId)}});
+document.addEventListener('dragover',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(t&&dragId){e.preventDefault();$$('.team').forEach(x=>x.classList.remove('drag'));t.closest('.team')?.classList.add('drag')}});
+document.addEventListener('drop',e=>{const t=e.target.closest&&e.target.closest('[data-drop]');if(t&&dragId){e.preventDefault();const p=S.players.find(x=>x.id===dragId);p.team=t.dataset.drop||null;p.lock=!!p.team;dragId=null;save();renderTeams();renderRoster()}});
+document.addEventListener('dragend',()=>{dragId=null;$$('.team').forEach(x=>x.classList.remove('drag'))});
+
+/* ---------- helpers ---------- */
+const P_=id=>S.players.find(x=>x.id===id);
+const pName=id=>{const p=P_(id);return p?p.name:'?'};
+const bName=id=>{const b=S.buildings.find(x=>x.id===id);return b?b.name:'No target'};
+function tsec(t){const m=String(t||'').match(/(\d+)(?::(\d+))?/);return m?(+m[1])*60+(+(m[2]||0)):null}
+const slot=(P,bid)=>P.slots[bid]||(P.slots[bid]={rally:'',garr:'',rf:[],gf:[]});
+const slotCount=s=>s?((s.rally?1:0)+(s.garr?1:0)+s.rf.length+s.gf.length):0;
+const ours=b=>b.side===S.side;
+
+/* ---------- map ---------- */
+let tool='select',curTeam='A',sel=null,pend=null;
+const TOOLS=[['select','Select'],['assign','Assign team'],['arrow','Arrow'],['enemy','Enemy push'],['pin','Note pin'],['move','Move'],['erase','Erase']];
+const HINT={select:'Tap a structure to set its main rally, main garrison and fillers.',assign:'Pick a team, then tap structures to send that team there in this phase.',arrow:'Tap a start point and an end point to draw a movement.',enemy:'Tap start and end to mark an expected enemy push.',pin:'Tap anywhere to drop a note, then write it in the panel.',erase:'Tap an arrow or note pin to remove it.',move:'Drag a structure to fix its position. Positions are shared by every phase.'};
+const ph=()=>S.phases[S.cur];
+function renderPhases(){$('#phases').innerHTML=S.phases.map((p,i)=>`<button class="ph ${i===S.cur?'on':''}" data-ph="${i}">${i+1}. ${esc(p.name)}</button>`).join('')+`<button class="ph" id="addPh">+ Phase</button><button class="ph" id="dupPh" title="Copy this phase">Duplicate</button>`}
+$('#phases').addEventListener('click',e=>{const b=e.target.closest('[data-ph]');if(b){S.cur=+b.dataset.ph;sel=null;save();renderMapAll();return}
+ if(e.target.id==='addPh'){S.phases.push(newPhase('Phase '+(S.phases.length+1)));S.cur=S.phases.length-1;save();renderMapAll()}
+ if(e.target.id==='dupPh'){const c=JSON.parse(JSON.stringify(ph()));c.id=uid();c.name+=' (copy)';c.casts.forEach(x=>x.id=uid());S.phases.splice(S.cur+1,0,c);S.cur++;save();renderMapAll()}});
+function renderTools(){$('#map').classList.toggle('grab',tool==='move');$('#tools').innerHTML=TOOLS.map(([k,l])=>`<button class="tool ${tool===k?'on':''}" data-tool="${k}">${l}</button>`).join('')+(tool==='move'?`<button class="tool" id="resetLay">Reset positions</button>`:'')+`<button class="tool" id="zoomBtn">${$('#mapscroll').classList.contains('zoom')?'Fit map':'Zoom in'}</button>`;
+ $('#toolHint').textContent=HINT[tool]+(portrait()?' On phones the map is turned so Iset is bottom-left and Seth is top-right.':'');$('#teamChips').hidden=!['assign','arrow'].includes(tool);renderChips()}
+function renderChips(){$('#teamChips').innerHTML=TK.map(k=>`<button class="chip ${curTeam===k?'on':''}" data-chip="${k}" style="--tc:var(--t${k})"><span class="dot"></span>${k} · ${esc(S.teams[k].name)}</button>`).join('')}
+$('#tools').addEventListener('click',e=>{if(e.target.id==='resetLay'){const t=e.target;if(!t.dataset.c){t.dataset.c=1;t.textContent='Tap again to reset';return}const d=DEF_BUILD();S.buildings.forEach(b=>{const o=d.find(x=>x.id===b.id);if(o){b.x=o.x;b.y=o.y}});save();drawMap();renderTools();toast('Positions reset');return}if(e.target.id==='zoomBtn'){$('#mapscroll').classList.toggle('zoom');renderTools();return}const b=e.target.closest('[data-tool]');if(!b)return;tool=b.dataset.tool;pend=null;renderTools();drawMap()});
+$('#teamChips').addEventListener('click',e=>{const b=e.target.closest('[data-chip]');if(!b)return;curTeam=b.dataset.chip;renderChips()});
+$('#sidePick').addEventListener('click',e=>{const b=e.target.closest('[data-side]');if(!b)return;S.side=b.dataset.side;save();renderSide();drawMap();renderInsp();renderBoard()});
+function renderSide(){$$('#sidePick button').forEach(b=>b.classList.toggle('on',b.dataset.side===S.side))}
+
+function portrait(){return window.innerWidth<700}
+function V(x,y){return portrait()?[y,1000-x]:[x,y]}
+const SIDECOL={iset:'#2f6fd6',seth:'#cf4b2a'};
+function shape(t,x,y,r,fill){
+ const st=`stroke="#1b1408" stroke-width="2"`;
+ switch(t){
+  case'obelisk':return`<path d="M${x} ${y-r*1.2} L${x+r*.55} ${y+r*.9} L${x-r*.55} ${y+r*.9}Z" fill="${fill}" ${st}/>`;
+  case'outpost':return`<rect x="${x-r*.6}" y="${y-r*.8}" width="${r*1.2}" height="${r*1.6}" rx="2" fill="${fill}" ${st}/><rect x="${x-r*.85}" y="${y-r*.95}" width="${r*1.7}" height="${r*.4}" fill="${fill}" ${st}/>`;
+  case'altar':return`<path d="M${x} ${y-r} L${x+r} ${y} L${x} ${y+r} L${x-r} ${y}Z" fill="${fill}" ${st}/><circle cx="${x}" cy="${y}" r="${r*.3}" fill="#1b1408"/>`;
+  case'war':return`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${st}/><path d="M${x-r*.5} ${y-r*.5}L${x+r*.5} ${y+r*.5}M${x+r*.5} ${y-r*.5}L${x-r*.5} ${y+r*.5}" stroke="#b33a1c" stroke-width="${r*.28}" stroke-linecap="round"/>`;
+  case'life':return`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${st}/><path d="M${x} ${y-r*.55}V${y+r*.55}M${x-r*.55} ${y}H${x+r*.55}" stroke="#2c8a45" stroke-width="${r*.3}" stroke-linecap="round"/>`;
+  case'anubis':{const p=[...Array(6)].map((_,i)=>{const a=Math.PI/3*i+Math.PI/6;return(x+Math.cos(a)*r).toFixed(1)+','+(y+Math.sin(a)*r).toFixed(1)}).join(' ');return`<polygon points="${p}" fill="#3b3a46" ${st}/><path d="M${x-r*.35} ${y-r*.1}l${r*.2} ${-r*.45}l${r*.15} ${r*.3}l${r*.15} ${-r*.3}l${r*.2} ${r*.45}" fill="none" stroke="#e5c060" stroke-width="2"/>`}
+  case'ark':return`<rect x="${x-r}" y="${y-r*.7}" width="${r*2}" height="${r*1.4}" rx="5" fill="#e5b532" ${st}/><rect x="${x-r*.6}" y="${y-r*.25}" width="${r*1.2}" height="${r*.5}" fill="#1b1408" opacity=".5"/>`;
+  case'base':return`<path d="M${x-r} ${y-r} H${x+r} V${y+r*.2} Q${x+r} ${y+r} ${x} ${y+r*1.25} Q${x-r} ${y+r} ${x-r} ${y+r*.2}Z" fill="${fill}" ${st}/>`;
+  case'caravan':return`<path d="M${x-r} ${y+r*.6}L${x} ${y-r}L${x+r} ${y+r*.6}Z" fill="#e8c76a" ${st}/>`;
+  default:return`<circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" ${st}/>`}}
+const RAD={base:26,ark:24,obelisk:17,outpost:15,war:16,life:16,altar:17,anubis:17,caravan:14,other:14};
+function drawMap(){
+ const P=ph();const B=S.buildings;const svg=$('#map');const pr=portrait();
+ const W=pr?MAPH:1000,H=pr?1000:MAPH;svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+ const k=pr?1.3:1,fs=pr?19:14,fsm=pr?17:13;
+ const [gx1,gy1]=V(132,85),[gx2,gy2]=V(857,632);
+ let h=`<defs>${TK.map(t=>`<marker id="ah${t}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--t${t})"/></marker>`).join('')}<marker id="ahE" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="var(--enemy)"/></marker>
+ <radialGradient id="gI"><stop offset="0" stop-color="#4f8de8" stop-opacity=".45"/><stop offset="1" stop-color="#4f8de8" stop-opacity="0"/></radialGradient>
+ <radialGradient id="gS"><stop offset="0" stop-color="#e2603e" stop-opacity=".45"/><stop offset="1" stop-color="#e2603e" stop-opacity="0"/></radialGradient>
+ <pattern id="sand" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="1.1" fill="#b8955f" opacity=".45"/></pattern></defs>
+ <rect x="0" y="0" width="${W}" height="${H}" fill="#d4b083"/><rect x="0" y="0" width="${W}" height="${H}" fill="url(#sand)"/>
+ <circle cx="${gx1}" cy="${gy1}" r="${150*k}" fill="url(#gI)"/><circle cx="${gx2}" cy="${gy2}" r="${150*k}" fill="url(#gS)"/>`;
+ [[132,85,118,72],[857,632,128,92]].forEach(([x,y,rx,ry])=>{const[cx,cy]=V(x,y);const[a,b]=pr?[ry,rx]:[rx,ry];h+=`<ellipse cx="${cx}" cy="${cy}" rx="${a}" ry="${b}" fill="none" stroke="#a87c4f" stroke-width="9" stroke-dasharray="26 7" opacity=".85"/>`});
+ RIDGES.forEach(r=>{h+=`<polyline points="${r.map(([x,y])=>V(x,y).join(',')).join(' ')}" fill="none" stroke="#b98a5a" stroke-width="${22*k}" stroke-linecap="round" stroke-linejoin="round" opacity=".9"/><polyline points="${r.map(([x,y])=>V(x,y).join(',')).join(' ')}" fill="none" stroke="#a37446" stroke-width="${6*k}" stroke-linecap="round" stroke-dasharray="10 8" opacity=".8"/>`});
+ P.arrows.forEach((a,i)=>{const c=a.t==='E'?'var(--enemy)':`var(--t${a.t})`;const[x1,y1]=V(a.x1,a.y1),[x2,y2]=V(a.x2,a.y2);
+  h+=`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="${6*k}" stroke-linecap="round" ${a.t==='E'?'stroke-dasharray="14 9"':''} marker-end="url(#ah${a.t})" opacity=".92" style="pointer-events:none"/><line data-arrow="${i}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="transparent" stroke-width="30"/>`});
+ const castAt={};P.casts.forEach(c=>{if(c.target)(castAt[c.target]=castAt[c.target]||[]).push(c)});
+ B.forEach(b=>{const r=(RAD[b.type]||14)*k;const as=P.assign[b.id]||[];const isSel=sel&&sel.k==='b'&&sel.id===b.id;const[x,y]=V(b.x,b.y);
+  const fill=b.side?SIDECOL[b.side]:'#f4ead2';
+  h+=`<g data-b="${b.id}" style="cursor:pointer"><circle cx="${x}" cy="${y}" r="${r+18}" fill="transparent"/>`;
+  as.forEach((t,j)=>{h+=`<circle cx="${x}" cy="${y}" r="${r+8+j*6}" fill="none" stroke="var(--t${t})" stroke-width="5"/>`});
+  if(isSel)h+=`<circle cx="${x}" cy="${y}" r="${r+9+as.length*6}" fill="none" stroke="#1b1408" stroke-width="2.5" stroke-dasharray="5 4"/>`;
+  h+=shape(b.type,x,y,r,fill);
+  const lbl=b.type==='base'?(b.short+(ours(b)?' (us)':'')):b.short;
+  h+=`<text x="${x}" y="${y+r+fs+3+as.length*6}" text-anchor="middle" font-family="IBM Plex Sans,system-ui,sans-serif" font-size="${fs}" font-weight="600" fill="#1b1408" stroke="#f3e6c6" stroke-width="4" paint-order="stroke" style="pointer-events:none">${esc(lbl)}</text>`;
+  const n=slotCount(P.slots[b.id]);
+  if(as.length||n)h+=`<text x="${x}" y="${y-r-10-as.length*6}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="${fsm}" font-weight="600" fill="#1b1408" stroke="#f3e6c6" stroke-width="4" paint-order="stroke" style="pointer-events:none">${as.join('+')}${n?(as.length?' · ':'')+n+'p':''}</text>`;
+  const cs=castAt[b.id];if(cs){const bx=x+r*.95,by=y-r*.95;h+=`<g style="pointer-events:none"><circle cx="${bx}" cy="${by}" r="${11*k}" fill="#e5b532" stroke="#1b1408" stroke-width="1.5"/><text x="${bx}" y="${by+1}" text-anchor="middle" dominant-baseline="middle" font-size="${12*k}" font-weight="700" fill="#1b1408">${cs.length>1?cs.length:'S'}</text></g>`}
+  h+=`</g>`});
+ P.pins.forEach((p,i)=>{const on=sel&&sel.k==='pin'&&sel.i===i;const[x,y]=V(p.x,p.y);h+=`<g data-pin="${i}" style="cursor:pointer" transform="translate(${x} ${y}) scale(${k})"><path d="M0 0 l-11 -22 a13 13 0 1 1 22 0z" fill="#e5b532" stroke="#1b1408" stroke-width="${on?3:1.5}"/><text x="0" y="-27" text-anchor="middle" font-size="13" font-weight="700" fill="#1b1408">${i+1}</text></g>`});
+ if(pend){const[x,y]=V(pend.x,pend.y);h+=`<circle cx="${x}" cy="${y}" r="${9*k}" fill="${tool==='enemy'?'var(--enemy)':`var(--t${curTeam})`}"/>`}
+ svg.innerHTML=h;
+}
+function pt(e){const svg=$('#map');const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform(svg.getScreenCTM().inverse());
+ return portrait()?{x:Math.round(1000-q.y),y:Math.round(q.x)}:{x:Math.round(q.x),y:Math.round(q.y)}}
+let dragB=null,moved=false;
+$('#map').addEventListener('pointerdown',e=>{if(tool!=='move')return;const g=e.target.closest('[data-b]');if(!g)return;dragB=S.buildings.find(b=>b.id===g.dataset.b);moved=false;$('#map').setPointerCapture(e.pointerId);e.preventDefault()});
+$('#map').addEventListener('pointermove',e=>{if(!dragB)return;const p=pt(e);dragB.x=Math.max(25,Math.min(975,p.x));dragB.y=Math.max(25,Math.min(MAPH-25,p.y));moved=true;drawMap()});
+const endDrag=()=>{if(dragB){if(moved)save();dragB=null}};
+$('#map').addEventListener('pointerup',endDrag);$('#map').addEventListener('pointercancel',endDrag);
+$('#map').addEventListener('click',e=>{if(tool==='move')return;
+ const g=e.target.closest('[data-b]'),pin=e.target.closest('[data-pin]'),ar=e.target.closest('[data-arrow]');const P=ph();const p=pt(e);
+ if(tool==='select'){if(g){sel={k:'b',id:g.dataset.b}}else if(pin){sel={k:'pin',i:+pin.dataset.pin}}else sel=null;drawMap();renderInsp();if(sel&&portrait())$('#insp').scrollIntoView({behavior:'smooth',block:'start'});return}
+ if(tool==='assign'&&g){const id=g.dataset.b;const a=P.assign[id]||(P.assign[id]=[]);const ix=a.indexOf(curTeam);if(ix>=0)a.splice(ix,1);else a.push(curTeam);if(!a.length)delete P.assign[id];sel={k:'b',id};save();drawMap();renderInsp();renderBoard();return}
+ if(tool==='arrow'||tool==='enemy'){const at=g?S.buildings.find(b=>b.id===g.dataset.b):null;const q=at?{x:at.x,y:at.y}:p;
+  if(!pend){pend=q;drawMap()}else{if(Math.hypot(q.x-pend.x,q.y-pend.y)>20)P.arrows.push({x1:pend.x,y1:pend.y,x2:q.x,y2:q.y,t:tool==='enemy'?'E':curTeam});pend=null;save();drawMap();renderInsp()}return}
+ if(tool==='pin'){if(pin){sel={k:'pin',i:+pin.dataset.pin}}else{P.pins.push({x:p.x,y:p.y,text:''});sel={k:'pin',i:P.pins.length-1};save()}drawMap();renderInsp();setTimeout(()=>$('#pinTxt')?.focus(),30);return}
+ if(tool==='erase'){if(ar){P.arrows.splice(+ar.dataset.arrow,1)}else if(pin){P.pins.splice(+pin.dataset.pin,1);sel=null}save();drawMap();renderInsp()}
+});
+
+function opt(p,selId){return`<option value="${p.id}" ${p.id===selId?'selected':''}>${esc(p.name)} · ${p.team||'bench'}${p.role?' · '+esc(p.role):''}</option>`}
+function pool(P,bid){const teams=P.assign[bid]||[];const inT=p=>teams.length?teams.includes(p.team):!!p.team;
+ return S.players.filter(inT).sort((a,b)=>b.power-a.power)}
+function usedElsewhere(P,bid){const m={};Object.entries(P.slots).forEach(([id,s])=>{if(id===bid)return;[s.rally,s.garr,...s.rf,...s.gf].filter(Boolean).forEach(pid=>m[pid]=bName(id))});return m}
+function renderInsp(){
+ const P=ph();const el=$('#insp');
+ if(sel&&sel.k==='b'){const b=S.buildings.find(x=>x.id===sel.id);if(!b){sel=null;return renderInsp()}
+  const T=TYPES[b.type]||TYPES.other;const teams=P.assign[b.id]||[];const s=slot(P,b.id);const pl=pool(P,b.id);const busy=usedElsewhere(P,b.id);
+  const leadSel=(f,lbl,prefer)=>{const list=[...pl].sort((a,c)=>(c.role===prefer)-(a.role===prefer));
+   return`<label>${lbl}<select data-slot="${f}"><option value="">— none —</option>${list.map(p=>opt(p,s[f])).join('')}</select></label>`};
+  const fill=(f,lbl)=>{const ids=s[f];const avail=pl.filter(p=>!ids.includes(p.id)&&p.id!==s.rally&&p.id!==s.garr);
+   return`<div class="note">${lbl}</div><div class="assigned">${ids.map(id=>{const p=P_(id);return p?`<span class="pchip" style="border-color:var(--t${p.team||'A'})">${esc(p.name)}<button data-rmf="${f}:${id}" aria-label="Remove">×</button></span>`:''}).join('')||'<span class="note">None</span>'}</div>
+   <select data-addf="${f}"><option value="">+ Add filler…</option>${avail.map(p=>`<option value="${p.id}">${esc(p.name)} · ${p.team||'–'} · ${fmt(p.power)}${busy[p.id]?' · on '+esc(busy[p.id]):''}</option>`).join('')}</select>`};
+  el.innerHTML=`<h3>${esc(b.name)}</h3>
+  <div class="note">${esc(T.label)}${T.pts?' · '+esc(T.pts):''}</div>
+  ${T.eff?`<p style="margin:0;font-size:13px">${esc(T.eff)}</p>`:''}
+  <div><div class="note" style="margin-bottom:4px">Teams here in “${esc(P.name)}”</div><div class="assigned">${TK.map(k=>`<button class="chip ${teams.includes(k)?'on':''}" data-bt="${k}" style="--tc:var(--t${k})"><span class="dot"></span>${k}</button>`).join('')}</div>
+  ${teams.length?'':'<p class="hint">No team set: picking from all teams.</p>'}</div>
+  <div class="grp"><h5 style="color:var(--enemy)">Rally (attack)</h5>${leadSel('rally','Main rally','Rally lead')}${fill('rf','Rally fillers')}</div>
+  <div class="grp"><h5 style="color:var(--tA)">Garrison (hold)</h5>${leadSel('garr','Main garrison','Garrison')}${fill('gf','Garrison fillers')}</div>
+  ${P.casts.filter(c=>c.target===b.id).length?`<div class="grp"><h5>Skills on this structure</h5>${P.casts.filter(c=>c.target===b.id).map(c=>`<div class="kv"><span>${esc(c.time||'—')}</span><span>${esc(SK[c.skill]?.name||'?')}${c.by?' · '+esc(pName(c.by)):''}</span></div>`).join('')}</div>`:''}
+  <div><button class="btn sm" id="clrSlot">Clear this structure</button></div>`;
+  el.querySelectorAll('[data-slot]').forEach(x=>x.onchange=()=>{const f=x.dataset.slot;s[f]=x.value;s.rf=s.rf.filter(i=>i!==x.value);s.gf=s.gf.filter(i=>i!==x.value);commit()});
+  el.querySelectorAll('[data-addf]').forEach(x=>x.onchange=()=>{if(x.value){s[x.dataset.addf].push(x.value);commit()}});
+  el.querySelectorAll('[data-rmf]').forEach(x=>x.onclick=()=>{const[f,id]=x.dataset.rmf.split(':');s[f]=s[f].filter(i=>i!==id);commit()});
+  el.querySelectorAll('[data-bt]').forEach(x=>x.onclick=()=>{const a=P.assign[b.id]||(P.assign[b.id]=[]);const k=x.dataset.bt;const i=a.indexOf(k);i>=0?a.splice(i,1):a.push(k);if(!a.length)delete P.assign[b.id];commit()});
+  $('#clrSlot').onclick=()=>{delete P.slots[b.id];delete P.assign[b.id];commit()};
+  return}
+ if(sel&&sel.k==='pin'){const p=P.pins[sel.i];if(!p){sel=null;return renderInsp()}
+  el.innerHTML=`<h3>Note ${sel.i+1}</h3><label>Text<textarea id="pinTxt" style="font-family:var(--f-body)">${esc(p.text)}</textarea></label><div><button class="btn sm danger" id="delPin">Delete note</button></div>`;
+  $('#pinTxt').oninput=e=>{p.text=e.target.value;save()};$('#delPin').onclick=()=>{P.pins.splice(sel.i,1);sel=null;save();drawMap();renderInsp()};return}
+ el.innerHTML=`<h3>${esc(P.name)}</h3>
+ <label>Phase name<input type="text" id="phName" value="${esc(P.name)}"></label>
+ <label>Orders for this phase<textarea id="phNotes" style="font-family:var(--f-body);min-height:110px" placeholder="Timing, call-outs, teleport spots…">${esc(P.notes)}</textarea></label>
+ <div><div class="note" style="margin-bottom:4px">Skills this phase</div>${P.casts.length?[...P.casts].sort((a,b)=>(tsec(a.time)??9e9)-(tsec(b.time)??9e9)).map(c=>`<div class="kv"><span>${esc(c.time||'—')}</span><span>${esc(SK[c.skill]?.name||'?')} → ${esc(bName(c.target))}</span></div>`).join(''):'<span class="note">None planned. Add them in the AoO skills tab.</span>'}</div>
+ <div class="bar" style="margin:0"><button class="btn sm" id="clrPh">Clear drawings</button>${S.phases.length>1?'<button class="btn sm danger" id="delPh">Delete phase</button>':''}</div>`;
+ $('#phName').onchange=e=>{P.name=e.target.value;save();renderPhases()};$('#phNotes').oninput=e=>{P.notes=e.target.value;save()};
+ $('#clrPh').onclick=function(){if(this.dataset.c){P.arrows=[];P.pins=[];save();drawMap();renderInsp()}else{this.dataset.c=1;this.textContent='Tap again to clear'}};
+ const d=$('#delPh');if(d)d.onclick=function(){if(this.dataset.c){S.phases.splice(S.cur,1);S.cur=Math.max(0,S.cur-1);save();renderMapAll()}else{this.dataset.c=1;this.textContent='Tap again to delete'}};
+}
+function commit(){save();drawMap();renderInsp();renderBoard()}
+function who(id){const p=P_(id);return p?`<span class="lead">${esc(p.name)}</span> <span class="chipsm" style="--tc:var(--t${p.team||'A'})">${p.team||'–'}</span>`:'<span class="lead none">Not set</span>'}
+function names(ids){return ids.map(id=>P_(id)).filter(Boolean).map(p=>esc(p.name)).join(', ')||'<span class="note">—</span>'}
+function renderBoard(){
+ const P=ph();$('#boardSub').textContent=`Main rally, main garrison and fillers for every structure in “${P.name}”. Tap a structure on the map to change them.`;
+ const ids=S.buildings.filter(b=>(P.assign[b.id]||[]).length||slotCount(P.slots[b.id])).map(b=>b.id);
+ $('#board').innerHTML=ids.map(id=>{const b=S.buildings.find(x=>x.id===id);const s=P.slots[id]||{rally:'',garr:'',rf:[],gf:[]};const T=TYPES[b.type]||TYPES.other;
+  return`<div class="bcard"><h4>${esc(b.name)} ${(P.assign[id]||[]).map(k=>`<span class="chipsm" style="--tc:var(--t${k})">${k}</span>`).join(' ')}</h4>
+  ${T.pts?`<span class="pts">${esc(T.pts)}</span>`:''}
+  <dl class="slot"><dt style="color:var(--enemy)">Main rally</dt><dd>${who(s.rally)}</dd><dt>Rally fill</dt><dd>${names(s.rf)}</dd>
+  <dt style="color:var(--tA)">Main garrison</dt><dd>${who(s.garr)}</dd><dt>Garrison fill</dt><dd>${names(s.gf)}</dd></dl>
+  <div><button class="btn sm" data-goto="${id}">Edit</button></div></div>`}).join('')||'<div class="bcard"><b>No structures assigned yet</b><span class="note">Use Assign team, or tap a structure in Select mode and pick a main rally or garrison.</span></div>';
+ const on=new Set();Object.values(P.slots).forEach(s=>[s.rally,s.garr,...s.rf,...s.gf].forEach(x=>x&&on.add(x)));
+ $('#freeList').innerHTML=TK.map(k=>{const f=S.players.filter(p=>p.team===k&&!on.has(p.id));return`<div class="free"><span class="chipsm" style="--tc:var(--t${k})">${k}</span> ${f.length?f.map(p=>esc(p.name)).join(', '):'everyone has a job'}</div>`}).join('');
+}
+$('#board').addEventListener('click',e=>{const b=e.target.closest('[data-goto]');if(!b)return;tool='select';sel={k:'b',id:b.dataset.goto};renderTools();drawMap();renderInsp();$('#insp').scrollIntoView({behavior:'smooth',block:'start'})});
+function renderMapAll(){renderSide();renderPhases();renderTools();drawMap();renderInsp();renderBoard()}
+
+/* ---------- skills ---------- */
+let skPh=0,catF='all';
+function renderLib(){
+ const co=S.coords.map(P_).filter(Boolean);
+ $('#coordList').innerHTML=co.map(p=>`<span class="pchip" style="border-color:var(--t${p.team||'A'})">${esc(p.name)} · ${p.team||'bench'}<button data-rmco="${p.id}" aria-label="Remove coordinator">×</button></span>`).join('')||'<span class="note">No coordinators yet</span>';
+ $('#addCoord').innerHTML=`<option value="">${co.length>=5?'All 5 slots filled':'+ Add coordinator…'}</option>`+(co.length>=5?'':S.players.filter(p=>!S.coords.includes(p.id)).sort((a,b)=>(a.team||'Z').localeCompare(b.team||'Z')||b.power-a.power).map(p=>`<option value="${p.id}">${p.team||'–'} · ${esc(p.name)}</option>`).join(''));
+ const paid=S.loadout.filter(id=>!S.defaults.includes(id));
+ $('#loadCount').textContent=`${paid.length}/6 picked`+(S.defaults.length?` · ${S.defaults.length} default`:'');
+ $('#loadList').innerHTML=S.loadout.map(id=>{const s=SK[id];return`<span class="pchip" style="border-color:${CAT[s.cat][1]}">${esc(s.name)} · ${s.energy}⚡${S.defaults.includes(id)?' · default':''}<button data-unequip="${id}" aria-label="Unequip">×</button></span>`}).join('')||'<span class="note">Nothing equipped yet</span>';
+ $('#cats').innerHTML=[['all','All'],...Object.entries(CAT).map(([k,v])=>[k,v[0]])].map(([k,l])=>`<button class="ph ${catF===k?'on':''}" data-cat="${k}">${l}</button>`).join('')+`<button class="ph ${catF==='equipped'?'on':''}" data-cat="equipped">Equipped</button>`;
+ $('#skillLib').innerHTML=SKILLS.filter(s=>catF==='all'||(catF==='equipped'?S.loadout.includes(s.id):s.cat===catF)).map(s=>{const on=S.loadout.includes(s.id);const n=S.phases.reduce((c,P)=>c+P.casts.filter(x=>x.skill===s.id).length,0);
+  return`<div class="libcard ${on?'on':''}"><div class="skc" style="--cat:${CAT[s.cat][1]}"><span class="nrg" title="Energy Bars">${s.energy}</span><b>${esc(s.name)}</b>
+  <span class="meta"><span>CD ${cdTxt(s.cd)}</span><span style="color:${CAT[s.cat][1]}">${CAT[s.cat][0]}</span>${n?`<span>planned ${n}×</span>`:''}</span><p>${esc(s.eff)}</p></div>
+  <div class="bar" style="margin:0"><button class="btn sm ${on?'':'primary'}" data-equip="${s.id}">${on?'Unequip':'Equip'}</button>${on?`<label class="note"><input type="checkbox" data-def="${s.id}" ${S.defaults.includes(s.id)?'checked':''}> Default skill</label>`:''}</div></div>`}).join('');
+ $('#skPhases').innerHTML=S.phases.map((p,i)=>`<button class="ph ${i===skPh?'on':''}" data-skph="${i}">${i+1}. ${esc(p.name)} <span class="note">(${p.casts.length})</span></button>`).join('');
+ const eq=SKILLS.filter(s=>S.loadout.includes(s.id)),rest=SKILLS.filter(s=>!S.loadout.includes(s.id));
+ $('#cSkill').innerHTML=(eq.length?`<optgroup label="Equipped">${eq.map(s=>`<option value="${s.id}">${esc(s.name)} · ${s.energy}⚡</option>`).join('')}</optgroup>`:'')+`<optgroup label="${eq.length?'Not equipped':'All skills'}">${rest.map(s=>`<option value="${s.id}">${esc(s.name)} · ${s.energy}⚡</option>`).join('')}</optgroup>`;
+ $('#cBy').innerHTML='<option value="">Any coordinator</option>'+co.map(p=>`<option value="${p.id}">${esc(p.name)}</option>`).join('');
+ $('#cTarget').innerHTML='<option value="">No target / open field</option>'+S.buildings.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
+ // all casts across phases, for cooldown checks
+ const all=[];S.phases.forEach(P=>P.casts.forEach(c=>all.push(c)));
+ const clash=c=>{const t=tsec(c.time);if(t==null)return'';const s=SK[c.skill];const o=all.find(x=>x!==c&&x.skill===c.skill&&tsec(x.time)!=null&&Math.abs(tsec(x.time)-t)<s.cd);return o?`Cooldown clash: also planned at ${o.time} (${cdTxt(s.cd)} cooldown)`:''};
+ const P=S.phases[skPh]||S.phases[0];
+ const cs=[...P.casts].sort((a,b)=>(tsec(a.time)??9e9)-(tsec(b.time)??9e9));
+ const energy=cs.reduce((n,c)=>n+(SK[c.skill]?.energy||0),0);
+ $('#castList').innerHTML=cs.length?`<p class="note" style="margin:0 0 8px">${cs.length} cast${cs.length>1?'s':''} · ${energy} Energy Bar${energy===1?'':'s'} needed this phase</p><div class="tblwrap"><table class="casts"><thead><tr><th>Time</th><th>Skill</th><th class="num">Energy</th><th>Coordinator</th><th>Target</th><th>Call-out</th><th></th></tr></thead><tbody>${cs.map(c=>{const s=SK[c.skill];const w=[clash(c),S.loadout.length&&!S.loadout.includes(c.skill)?'Not in loadout':''].filter(Boolean);
+  return`<tr><td class="num" data-l="Time">${esc(c.time||'—')}</td><td data-l="Skill"><b>${esc(s?s.name:'?')}</b>${w.map(x=>`<div class="warn">${esc(x)}</div>`).join('')}</td><td class="num" data-l="Energy">${s?s.energy:''}</td><td data-l="By">${c.by?esc(pName(c.by)):'Any'}</td><td data-l="Target">${esc(c.target?bName(c.target):'Open field')}</td><td data-l="Call-out">${esc(c.note||'')}</td><td><button class="btn sm danger" data-rmcast="${c.id}">✕</button></td></tr>`}).join('')}</tbody></table></div>`:`<p class="note">No skills planned for “${esc(P.name)}” yet.</p>`;
+ $('#roleLib').innerHTML=ROLES.map(r=>{const ps=S.players.filter(p=>p.role===r);return`<div class="libcard"><b>${esc(r)}</b><span class="note">${ps.length} in roster · ${TK.map(k=>`<span style="color:var(--t${k})">${k}:${ps.filter(p=>p.team===k).length}</span>`).join(' ')}</span><textarea id="rn-${r.replace(/\W/g,'_')}" data-rolen="${esc(r)}">${esc(S.roleNotes[r]??'')}</textarea></div>`}).join('');
+}
+document.addEventListener('input',e=>{const d=e.target.dataset;if(d.rolen!=null){S.roleNotes[d.rolen]=e.target.value;save()}});
+document.addEventListener('change',e=>{const d=e.target.dataset;if(d.def){const id=d.def;S.defaults=e.target.checked?[...new Set([...S.defaults,id])]:S.defaults.filter(x=>x!==id);save();renderLib()}});
+document.addEventListener('click',e=>{const t=e.target.closest('[data-rmco],[data-equip],[data-unequip],[data-skph],[data-rmcast],[data-cat]');if(!t)return;const d=t.dataset;
+ if(d.rmco)S.coords=S.coords.filter(i=>i!==d.rmco);
+ if(d.cat)catF=d.cat;
+ const unequip=id=>{S.loadout=S.loadout.filter(x=>x!==id);S.defaults=S.defaults.filter(x=>x!==id)};
+ if(d.unequip)unequip(d.unequip);
+ if(d.equip){const id=d.equip;if(S.loadout.includes(id))unequip(id);else{const paid=S.loadout.filter(x=>!S.defaults.includes(x)).length;if(paid>=6){toast('6 skills already picked. Unequip one, or mark one as default.');return}S.loadout.push(id)}}
+ if(d.skph!=null)skPh=+d.skph;
+ if(d.rmcast)S.phases.forEach(P=>P.casts=P.casts.filter(c=>c.id!==d.rmcast));
+ save();renderLib()});
+$('#addCoord').onchange=e=>{if(e.target.value&&S.coords.length<5){S.coords.push(e.target.value);save();renderLib()}};
+$('#addCast').onclick=()=>{const sk=$('#cSkill').value;if(!sk)return;
+ const t=$('#cTime').value.trim();if(t&&tsec(t)==null){toast('Write the time like 05:00');return}
+ S.phases[skPh].casts.push({id:uid(),skill:sk,by:$('#cBy').value,target:$('#cTarget').value,time:t,note:$('#cNote').value.trim()});
+ $('#cTime').value='';$('#cNote').value='';save();renderLib();toast('Added to '+S.phases[skPh].name)};
+
+/* ---------- briefing ---------- */
+function planText(scope){
+ const L=[];const only=scope==='all'?TK:[scope];
+ L.push('☥ ARK OF OSIRIS PLAN · We are '+(S.side==='iset'?'ISET (blue, top-left)':'SETH (red, bottom-right)'),'');
+ only.forEach(k=>{const ps=S.players.filter(p=>p.team===k).sort((a,b)=>b.power-a.power);
+  L.push(`━━ TEAM ${k} · ${S.teams[k].name.toUpperCase()} (${ps.length} · ${fmt(ps.reduce((s,p)=>s+p.power,0))}) ━━`);
+  ps.forEach(p=>L.push(`• ${p.name}${p.role?' — '+p.role:''}${p.cmd?' ['+p.cmd+']':''}`));L.push('')});
+ if(scope==='all'){const b=S.players.filter(p=>!p.team);if(b.length){L.push('━━ BENCH / SUBS ━━');b.forEach(p=>L.push('• '+p.name+(p.role?' — '+p.role:'')));L.push('')}}
+ if(S.coords.length){L.push('━━ COORDINATORS ━━');S.coords.forEach(id=>{const p=P_(id);if(p)L.push(`• ${p.name} (Team ${p.team||'–'})`)});L.push('')}
+ if(S.loadout.length){L.push('━━ SKILL LOADOUT ━━');S.loadout.forEach(id=>{const s=SK[id];L.push(`• ${s.name} · ${s.energy} energy · CD ${cdTxt(s.cd)}${S.defaults.includes(id)?' · default':''}`)});L.push('')}
+ S.phases.forEach((P,i)=>{L.push(`▶ PHASE ${i+1}: ${P.name.toUpperCase()}`);
+  S.buildings.forEach(b=>{const tm=P.assign[b.id]||[];const s=P.slots[b.id];if(!tm.length&&!slotCount(s))return;
+   const rel=[s?.rally,s?.garr,...(s?.rf||[]),...(s?.gf||[])].map(P_).filter(Boolean);
+   if(scope!=='all'&&!tm.includes(scope)&&!rel.some(p=>p.team===scope))return;
+   L.push(`  ◆ ${b.name}${tm.length?' — Team '+tm.join('+'):''}`);
+   if(s){if(s.rally)L.push(`     Rally: ${pName(s.rally)}${s.rf.length?' | fill: '+s.rf.map(pName).join(', '):''}`);else if(s.rf.length)L.push(`     Rally fill: ${s.rf.map(pName).join(', ')}`);
+    if(s.garr)L.push(`     Garrison: ${pName(s.garr)}${s.gf.length?' | fill: '+s.gf.map(pName).join(', '):''}`);else if(s.gf.length)L.push(`     Garrison fill: ${s.gf.map(pName).join(', ')}`)}});
+  [...P.casts].sort((a,b)=>(tsec(a.time)??9e9)-(tsec(b.time)??9e9)).forEach(c=>{const by=P_(c.by);const s=SK[c.skill];if(!s)return;
+   L.push(`  ⚡ ${c.time?c.time+' ':''}${s.name}${c.target?' → '+bName(c.target):''}${by?' (by '+by.name+')':''}${c.note?' — '+c.note:''}`)});
+  P.pins.filter(p=>p.text).forEach(p=>L.push(`  📌 ${p.text}`));
+  if(P.notes)L.push('  '+P.notes.replace(/\n/g,'\n  '));L.push('')});
+ L.push('━━ POINTS (Golden) ━━','• Ark escort 3,000 · Altar 750 + 150/min · Shrine 400 + 80/min · Obelisk 100 + 20/min · Outpost 80 + 30/min','• Obelisk: 8 teleports first capture, 2 on recapture · 3 home Outposts = Ark always visible');
+ return L.join('\n');
+}
+function renderPlan(){$('#planOut').textContent=planText($('#planScope').value)}
+$('#planScope').onchange=renderPlan;
+async function copy(txt,msg){try{await navigator.clipboard.writeText(txt);toast(msg)}catch(e){const r=document.createRange();r.selectNodeContents($('#planOut'));const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Selected. Copy with your device menu.')}}
+$('#copyPlan').onclick=()=>copy(planText($('#planScope').value),'Briefing copied');
+$('#copyJson').onclick=()=>{const t=JSON.stringify(S);navigator.clipboard.writeText(t).then(()=>toast('Backup code copied'),()=>{$('#restoreBox').hidden=false;$('#restoreTxt').value=t;$('#restoreTxt').select();toast('Selected. Copy it manually.')})};
+$('#showRestore').onclick=()=>{$('#restoreBox').hidden=!$('#restoreBox').hidden};
+$('#doRestore').onclick=()=>{try{const o=JSON.parse($('#restoreTxt').value);if(!o.players)throw 0;S=migrate(o);save();renderAll();toast('Restored')}catch(e){toast('That backup code is not valid')}};
+$('#resetAll').onclick=function(){if(this.dataset.c){S=DEF();loadSample();save();renderAll();toast('Reset');this.textContent='Reset everything';delete this.dataset.c}else{this.dataset.c=1;this.textContent='Tap again to reset'}};
+
+/* ---------- tabs & boot ---------- */
+function show(t){S.tab=t;save();$$('#tabs .tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.t===t));['roster','teams','map','skills','plan'].forEach(v=>$('#v-'+v).hidden=v!==t);
+ if(t==='roster')renderRoster();if(t==='teams')renderTeams();if(t==='map')renderMapAll();if(t==='skills')renderLib();if(t==='plan')renderPlan()}
+$('#tabs').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(b)show(b.dataset.t)});
+function renderAll(){show(S.tab||'roster')}
+function migrate(o){const d=DEF();const s=Object.assign(d,o);
+ if(o.v===3){const d=DEF_BUILD();s.buildings=d;s.v=VERSION}
+ if(s.v!==VERSION){s.buildings=DEF_BUILD();s.phases=(o.phases||DEF_PHASES()).map(p=>({...newPhase(p.name,p.notes||''),id:p.id||uid()}));s.cur=0;s.v=VERSION;s.loadout=[];s.defaults=[]}
+ DEF_BUILD().forEach(b=>{if(!s.buildings.find(x=>x.id===b.id))s.buildings.push(b)});
+ s.phases.forEach(p=>{p.casts=(p.casts||[]).filter(c=>SK[c.skill]);p.slots=p.slots||{};p.assign=p.assign||{};p.arrows=p.arrows||[];p.pins=p.pins||[]});
+ s.coords=(s.coords||[]).filter(id=>s.players.some(p=>p.id===id));return s}
+let saved=null;try{saved=JSON.parse(localStorage.getItem('aoo-war-room')||'null')}catch(e){}
+if(saved&&saved.players){S=migrate(saved)}else{loadSample()}
+let lastPortrait=portrait();addEventListener('resize',()=>{if(portrait()!==lastPortrait){lastPortrait=portrait();if(S.tab==='map'){drawMap();renderTools()}}});
+renderAll();
+})();
+
+</script>
+
+</body>
+</html>
